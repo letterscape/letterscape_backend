@@ -24,8 +24,9 @@ import (
 type EthereumOpts struct {
 }
 
-const nftAddress = "0xF62eEc897fa5ef36a957702AA4a45B58fE8Fe312"
-const marketAddress = "0x364C7188028348566E38D762f6095741c49f492B"
+const nftAddress = "0x5147c5C1Cb5b5D3f56186C37a4bcFBb3Cd0bD5A7"
+const marketAddress = "0xF2cb3cfA36Bfb95E0FD855C1b41Ab19c517FcDB9"
+const spaceAddress = "0xC3549920b94a795D75E6C003944943D552C46F97"
 
 // todo load operation put into start process
 
