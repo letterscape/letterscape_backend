@@ -80,6 +80,13 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 		controller.WnftInfoRegister(wnftInfoGroup)
 	}
 
+	//wnftResource
+	wnftResourceGroup := router.Group("/resource")
+	wnftResourceGroup.Use(middleware.CORSMiddleware(), middleware.RecoveryMiddleware(), middleware.RequestLog(), middleware.IPAuthMiddleware(), middleware.TranslationMiddleware())
+	{
+		controller.WnftResourceRegister(wnftResourceGroup)
+	}
+
 	// wnftStat
 	wnftStatGroup := router.Group("/stat")
 	wnftStatGroup.Use(middleware.CORSMiddleware(), middleware.RecoveryMiddleware(), middleware.RequestLog(), middleware.IPAuthMiddleware(), middleware.TranslationMiddleware())

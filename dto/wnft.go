@@ -85,12 +85,3 @@ type BurnWnftInput struct {
 func (params *BurnWnftInput) BindingValidParams(c *gin.Context) error {
 	return public.DefaultGetValidParams(c, params)
 }
-
-type FetchResourceInput struct {
-	Fp      string `form:"fp" json:"fp" validate:"required"`
-	ChainId string `form:"chainId" json:"chainId" validate:"required"`
-}
-
-func (params *FetchResourceInput) BindingValidParams(c *gin.Context) error {
-	return public.DefaultGetValidParams(c, params)
-}
