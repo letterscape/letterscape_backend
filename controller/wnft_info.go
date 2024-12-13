@@ -3,16 +3,9 @@ package controller
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/ipfs/boxo/files"
-	"github.com/letterScape/backend/chain"
 	"github.com/letterScape/backend/dto"
 	"github.com/letterScape/backend/middleware"
 	"github.com/letterScape/backend/services"
-	"github.com/letterScape/backend/utils"
-	"io"
-	"log"
-	"mime/multipart"
-	"net/http"
 )
 
 type WnftInfoController struct{}
@@ -29,8 +22,6 @@ func WnftInfoRegister(router *gin.RouterGroup) {
 	router.POST("/burn", wnftInfo.Burn).OPTIONS("/burn", wnftInfo.Burn)
 	router.POST("/update", wnftInfo.Update)
 	router.POST("/updateDetail", wnftInfo.UpdateDetail).OPTIONS("/updateDetail", wnftInfo.UpdateDetail)
-	router.POST("/upload", wnftInfo.UploadResource).OPTIONS("/upload", wnftInfo.UploadResource)
-	router.GET("/fetch", wnftInfo.FetchResource)
 }
 
 func (wnftInfo *WnftInfoController) Page(context *gin.Context) {
@@ -181,94 +172,4 @@ func (wnftInfo *WnftInfoController) UpdateDetail(context *gin.Context) {
 	}
 	middleware.ResponseSuccess(context, "mint success")
 	return
-}
-
-func (wnftInfo *WnftInfoController) UploadResource(context *gin.Context) {
-	file, err := context.FormFile("data")
-	if err != nil {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
-	src, err := file.Open()
-	if err != nil {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
-	defer func(src multipart.File) {
-		err := src.Close()
-		if err != nil {
-			middleware.ResponseError(context, 2002, err)
-			log.Println(err)
-			return
-		}
-	}(src)
-
-	cidStr, err := utils.StoreFileIntoIpfs(context, src)
-	if err != nil {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
-	log.Println("cid: ", cidStr)
-
-	middleware.ResponseSuccess(context, cidStr)
-	return
-}
-
-func (wnftInfo *WnftInfoController) FetchResource(context *gin.Context) {
-	input := &dto.FetchResourceInput{}
-	if err := input.BindingValidParams(context); err != nil {
-		middleware.ResponseError(context, 2001, err)
-	}
-
-	chainContext := &chain.Context{}
-	chainContext.SetChainOpt(chain.Mapping[input.ChainId])
-	// tokenURI is the cid
-	tokenURI, err := chainContext.GetTokenURI(input.Fp)
-
-	if err != nil {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
-
-	if tokenURI == "" {
-		middleware.ResponseSuccess(context, "")
-		return
-	}
-
-	file, err := utils.FetchFileFromIpfs(context, tokenURI)
-	if err != nil {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
-	defer func(file files.File) {
-		err := file.Close()
-		if err != nil {
-			middleware.ResponseError(context, 2002, err)
-			return
-		}
-	}(file)
-
-	buffer := make([]byte, 512)
-	_, err = file.Read(buffer)
-	if err != nil && err != io.EOF {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
-
-	contentType := http.DetectContentType(buffer)
-
-	// reset the position of the point
-	_, err = file.Seek(0, io.SeekStart)
-	if err != nil {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
-
-	log.Println("contentType: ", contentType)
-	context.Header("Content-Type", contentType)
-	_, err = io.Copy(context.Writer, file)
-	if err != nil {
-		middleware.ResponseError(context, 2002, err)
-		return
-	}
 }
