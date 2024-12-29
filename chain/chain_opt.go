@@ -8,6 +8,8 @@ import (
 var Mapping = func() map[string](ChainOperation) {
 	m := make(map[string]ChainOperation)
 	m["1"] = &EthereumOpts{}
+	m["97"] = &EthereumOpts{}
+	m["5000"] = &EthereumOpts{}
 	return m
 }()
 

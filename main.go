@@ -14,7 +14,10 @@ import (
 )
 
 func main() {
-	lib.InitModule("./conf/dev/", []string{"base", "mysql", "redis"})
+	//lib.InitModule("./conf/dev/", []string{"base", "mysql", "redis"})
+	lib.InitModule("./conf/test/", []string{"base", "mysql", "redis"})
+	env := os.Getenv("ENV")
+	log.Println("env: ", env)
 	defer lib.Destroy()
 	log.Println("BlockChain RpcUrl: ", global.BlockChainConfig.RpcUrl)
 

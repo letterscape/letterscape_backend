@@ -44,14 +44,14 @@ func (config *ConfigParams) Save(c *gin.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (config *ConfigParams) GetSymbolMultiplier(c *gin.Context, db *gorm.DB, chainId string) (*big.Int, error) {
+func (config *ConfigParams) GetSymbolMultiplier(c *gin.Context, db *gorm.DB, chainId string) (*big.Rat, error) {
 	config.Type = "symbol"
 	config.Param = chainId
 	param, err := config.SelectOne(c, db)
 	if err != nil {
 		return nil, err
 	}
-	multiplier := new(big.Int)
-	multiplier.SetString(param.Value, 10)
+	multiplier := new(big.Rat)
+	multiplier.SetString(param.Value)
 	return multiplier, nil
 }

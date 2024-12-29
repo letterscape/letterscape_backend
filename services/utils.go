@@ -5,6 +5,7 @@ import (
 	"github.com/letterScape/backend/dao"
 	"gorm.io/gorm"
 	"math/big"
+	"strings"
 )
 
 // todo Cache the config data
@@ -16,9 +17,9 @@ func EnlargeSymbol(c *gin.Context, db *gorm.DB, chainId string, amt string) (str
 	if err != nil {
 		return amt, err
 	}
-	amtBig := big.NewInt(0)
-	amtBig.SetString(amt, 10)
-	return amtBig.Div(amtBig, multiplier).String(), nil
+	amtBig := new(big.Rat)
+	amtBig.SetString(amt)
+	return trimTrailingZeros(new(big.Rat).Quo(amtBig, multiplier).FloatString(10)), nil
 }
 
 // ShrinkSymbol 1ETH -> 10^18WEI
@@ -28,7 +29,15 @@ func ShrinkSymbol(c *gin.Context, db *gorm.DB, chainId string, amt string) (stri
 	if err != nil {
 		return amt, err
 	}
-	amtBig := big.NewInt(0)
-	amtBig.SetString(amt, 10)
-	return amtBig.Mul(amtBig, multiplier).String(), nil
+	amtBig := new(big.Rat)
+	amtBig.SetString(amt)
+	return trimTrailingZeros(amtBig.Mul(amtBig, multiplier).FloatString(10)), nil
+}
+
+func trimTrailingZeros(input string) string {
+	if strings.Contains(input, ".") {
+		input = strings.TrimRight(input, "0")
+		input = strings.TrimRight(input, ".") // if no number after dot, trim the dot
+	}
+	return input
 }

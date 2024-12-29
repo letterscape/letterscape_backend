@@ -12,7 +12,8 @@ type Config struct {
 
 func NewConfig() (*Config, error) {
 	vp := viper.New()
-	vp.AddConfigPath("conf/dev")
+	//vp.AddConfigPath("conf/dev")
+	vp.AddConfigPath("conf/test")
 	vp.SetConfigName("config")
 	vp.SetConfigType("yaml")
 	err := vp.ReadInConfig()
